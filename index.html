@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Ping Pong Game</title>
+  <style>
+    #game-container {
+      width: 600px;
+      height: 400px;
+      border: 1px solid #000;
+      position: relative;
+    }
+
+    #paddle-left, #paddle-right, #ball {
+      width: 10px;
+      height: 60px;
+      position: absolute;
+      background-color: #000;
+    }
+
+    #paddle-left {
+      left: 0;
+    }
+
+    #paddle-right {
+      right: 0;
+    }
+
+    #ball {
+      width: 20px;
+      height: 20px;
+      background-color: #FF0000;
+      position: absolute;
+      border-radius: 50%;
+    }
+  </style>
+</head>
+<body>
+  <div id="game-container">
+    <div id="paddle-left"></div>
+    <div id="ball"></div>
+    <div id="paddle-right"></div>
+  </div>
+
+  <script>
+    const gameContainer = document.getElementById('game-container');
+    const paddleLeft = document.getElementById('paddle-left');
+    const paddleRight = document.getElementById('paddle-right');
+    const ball = document.getElementById('ball');
+
+    let leftPaddleY = 170;
+    let rightPaddleY = 170;
+    let ballX = 295;
+    let ballY = 195;
+    let ballSpeedX = 5;
+    let ballSpeedY = 5;
+    let player1Score = 0;
+    let player2Score = 0;
+
+    let leftPaddleMoving = 0;
+    let rightPaddleMoving = 0;
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'w') {
+        leftPaddleMoving = -10;
+      } else if (event.key === 's') {
+        leftPaddleMoving = 10;
+      }
+
+      if (event.key === 'ArrowUp') {
+        rightPaddleMoving = -10;
+      } else if (event.key === 'ArrowDown') {
+        rightPaddleMoving = 10;
+      }
+    });
+
+    document.addEventListener('keyup', (event) => {
+      if (event.key === 'w' || event.key === 's') {
+        leftPaddleMoving = 0;
+      }
+
+      if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
+        rightPaddleMoving = 0;
+      }
+    });
+
+    function update() {
+      leftPaddleY += leftPaddleMoving;
+      rightPaddleY += rightPaddleMoving;
+
+      if (leftPaddleY < 0) {
+        leftPaddleY = 0;
+      } else if (leftPaddleY > 340) {
+        leftPaddleY = 340;
+      }
+
+      if (rightPaddleY < 0) {
+        rightPaddleY = 0;
+      } else if (rightPaddleY > 340) {
+        rightPaddleY = 340;
+      }
+
+      paddleLeft.style.top = leftPaddleY + 'px';
+      paddleRight.style.top = rightPaddleY + 'px';
+
+      ballX += ballSpeedX;
+      ballY += ballSpeedY;
+
+      if (ballY <= 0 || ballY >= gameContainer.clientHeight - 20) {
+        ballSpeedY = -ballSpeedY;
+      }
+
+      if (ballX <= 10) {
+        if (ballY + 20 >= leftPaddleY && ballY <= leftPaddleY + 60) {
+          ballSpeedX = -ballSpeedX;
+        } else {
+          // Player 2 scores a point
+          player2Score++;
+          updateScoreDisplay();
+          resetBall();
+        }
+      }
+
+      if (ballX >= gameContainer.clientWidth - 30) {
+        if (ballY + 20 >= rightPaddleY && ballY <= rightPaddleY + 60) {
+          ballSpeedX = -ballSpeedX;
+        } else {
+          // Player 1 scores a point
+          player1Score++;
+          updateScoreDisplay();
+          resetBall();
+        }
+      }
+
+      if (ballX <= 0 || ballX >= gameContainer.clientWidth - 20) {
+        resetBall();
+      }
+
+      ball.style.left = ballX + 'px';
+      ball.style.top = ballY + 'px';
+
+      requestAnimationFrame(update);
+    }
+
+    function updateScoreDisplay() {
+      scoreDisplay.innerText = `Player 1: ${player1Score} - Player 2: ${player2Score}`;
+    }
+
+    function resetBall() {
+      ballX = 295;
+      ballY = 195;
+      ballSpeedX = -ballSpeedX;
+      updateScoreDisplay();
+    }
+
+    const scoreDisplay = document.createElement('div');
+    scoreDisplay.id = 'score';
+    scoreDisplay.style.position = 'absolute';
+    scoreDisplay.style.top = '10px';
+    scoreDisplay.style.left = '10px';
+    scoreDisplay.style.fontSize = '20px';
+    gameContainer.appendChild(scoreDisplay);
+
+    updateScoreDisplay();
+    update();
+  </script>
+</body>
+</html>
